@@ -1,0 +1,17 @@
+{
+  "main": "src/main.ts",
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.2"
+  },
+  "scripts": {
+    "build": "npx tsc",
+    "clean": "rimraf dist",
+    "start": "npm run clean && npm run build && node dist/main.js"
+  },
+  "dependencies": {
+    "@tensorflow-models/knn-classifier": "^1.2.6",
+    "@tensorflow/tfjs-node": "^4.22.0"
+  }
+}
