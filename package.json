@@ -8,7 +8,7 @@
   "scripts": {
     "build": "npx tsc",
     "clean": "rimraf dist",
-    "start": "npm run clean && npm run build && node dist/main.js"
+    "start": "npm run clean && npm run build && node --no-deprecation dist/main.js"
   },
   "dependencies": {
     "@tensorflow-models/knn-classifier": "^1.2.6",
