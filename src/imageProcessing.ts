@@ -1,7 +1,23 @@
-import { createCanvas, ImageData, loadImage } from 'canvas';
+import { createCanvas, ImageData, loadImage, CanvasRenderingContext2D } from 'canvas';
 
 const PIX_THRESH = 100;
 const X_THRESH = 3;
+
+class charPosDataInfo {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    data: ImageData;
+
+    constructor(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.data = ctx.getImageData(x, y, width, height);
+    }
+}
 
 export async function processImage(imagePath: string) {
     const image = await loadImage(imagePath);
@@ -11,62 +27,124 @@ export async function processImage(imagePath: string) {
     ctx.drawImage(image, 0, 0);
     const imageData = ctx.getImageData(0, 0, image.width, image.height);
 
-    const hScanUVstrip = new Uint8ClampedArray(canvas.width);
+    const processedImageData = new Uint8ClampedArray(imageData.data.length);
+    processedImageData.fill(0, 0, imageData.data.length);
 
-    const newImageData = new Uint8ClampedArray(imageData.data.length);
-    newImageData.fill(0, 0, imageData.data.length);
-
+    // highlights only pixels that belong to characters, also sets the x coordinate of every pixel that 
+    // belongs to characters as 1 in hScanUVstrip
+    const hScanUVstrip = new Uint8ClampedArray(image.width);
     for (let i = 0; i < imageData.data.length; i += 4) {
         let pix = imageData.data[i + 2];
         if (pix < PIX_THRESH) {
             pix = 255;
-            hScanUVstrip.set([1], (i / 4) % image.width);
+            const pi = i / 4;
+            const x = pi % image.width;
+            hScanUVstrip.set([1], x);
         } else {
             pix = 0;
         }
-        newImageData.set([pix, pix, pix, 255], i);
+        processedImageData.set([pix, pix, pix, 255], i);
     }
-    ctx.putImageData(new ImageData(newImageData, image.width, image.height), 0, 0);
+    ctx.putImageData(new ImageData(processedImageData, image.width, image.height), 0, 0);
 
+    const detectedCharacters: charPosDataInfo[] = [];
     {
-        // Character Detection (Horizontal, Scans using Vertical Strips)
-        smoothenDetection(hScanUVstrip, X_THRESH);
-    }
 
-    for (let x = 0; x < canvas.width; x++) {
-        if (hScanUVstrip[x] === 1) {
-            ctx.fillStyle = "red";
-            ctx.fillRect(x, 1, 1, 1);
-        }
-    }
-
-    return canvas.toBuffer();
-}
-
-function smoothenDetection(detectionArray: Uint8ClampedArray, tolerance: number) {
-    let inVoid = true;
-    let lastMiss = 0;
-    let lastHit = 0;
-    for (let i = 0; i < detectionArray.length; i++) {
-        const hit = detectionArray[i] === 1;
-        if (inVoid) {
-            if (hit) {
-                inVoid = false;
-            }
-        } else {
-            if (hit) {
-                if (lastMiss < X_THRESH) {
-                    detectionArray.set(new Array(i - lastHit).fill(1), lastHit);
+        // smoothens x detections in hScanUVstrip so that small breaks
+        // are not counted as separate chars in the image as the
+        // chars can have blank lines in-between
+        {
+            let inVoid = true;
+            let lastMiss = 0;
+            let lastHit = 0;
+            for (let i = 0; i < hScanUVstrip.length; i++) {
+                const hit = hScanUVstrip[i] === 1;
+                if (inVoid) {
+                    if (hit) {
+                        inVoid = false;
+                    }
                 } else {
-                    inVoid = true;
+                    if (hit) {
+                        if (lastMiss < X_THRESH) {
+                            hScanUVstrip.set(new Array(i - lastHit).fill(1), lastHit);
+                        } else {
+                            inVoid = true;
+                        }
+                        lastMiss = 0;
+                    } else {
+                        lastMiss += 1;
+                    }
                 }
-                lastMiss = 0;
-            } else {
-                lastMiss += 1;
+                if (hit) {
+                    lastHit = i;
+                }
             }
         }
-        if (hit) {
-            lastHit = i;
+
+        // calculates x ranges of characters and puts them in xGroups
+        let xGroups: [number, number][] = [];
+        {
+            let inVoid = false;
+            for (let i = 0; i < image.width; i++) {
+                const hit = hScanUVstrip[i];
+                if (inVoid) {
+                    if (hit) {
+                        xGroups.push([i, 0]);
+                        inVoid = false;
+                    }
+                } else {
+                    if (!hit) {
+                        if (xGroups.length) {
+                            xGroups[xGroups.length - 1][1] = i;
+                        }
+                        inVoid = true;
+                    }
+                }
+            }
+        }
+
+        // calculates y min & max for all ranges calculated in xGroups,
+        // finally pushes the result to detectedCharacters
+        for (const xGroup of xGroups) {
+            const [start, end] = xGroup;
+            let ymin = Infinity, ymax = 0;
+
+            for (let y = 0; y < image.height; y++) {
+                for (let x = start; x <= end; x++) {
+                    const i = (y * image.width + x) * 4;
+                    if (processedImageData[i] === 255) {
+                        if (y > ymax) {
+                            ymax = y;
+                        }
+                        if (y < ymin) {
+                            ymin = y;
+                        }
+                    }
+                }
+            }
+
+            detectedCharacters.push(
+                new charPosDataInfo(
+                    ctx, 
+                    start, ymin, end - start, ymax - ymin
+                )
+            );
         }
     }
+
+    const helper_canvas = createCanvas(image.width, image.height * 2);
+    const helper_ctx = helper_canvas.getContext("2d");
+
+    helper_ctx.drawImage(image, 0, 0);
+    helper_ctx.putImageData(ctx.getImageData(0, 0, image.width, image.height), 0, image.height);
+
+    for (const coords of detectedCharacters) {
+        helper_ctx.strokeStyle = "red";
+        helper_ctx.strokeRect(coords.x, coords.y + image.height, coords.width, coords.height);
+    }
+
+    return {
+        helpImageBuff: helper_canvas.toBuffer(),
+        detections: detectedCharacters
+    };
 }

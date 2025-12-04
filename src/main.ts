@@ -8,7 +8,7 @@ async function main() {
 
     app.get("/img", (req, res) => {
         res.type("png");
-        res.send(processed);
+        res.send(processed.helpImageBuff);
     })
 
     app.get("/", (req, res) => {
