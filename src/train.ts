@@ -33,6 +33,18 @@ function randomSplitArray(array: any[], t: number) {
     return [array_1, array_2];
 }
 
+function moveImageMismatchLabel(dataPath: string, imgName: string, helpImg: Buffer<ArrayBufferLike>) {
+    const mismatchFolder = path.join(dataPath, "mismatches");
+    if(!(fs.existsSync(mismatchFolder))) fs.mkdirSync(mismatchFolder);
+    const imgPath = path.join(dataPath, imgName);
+    fs.writeFileSync(path.join(mismatchFolder, imgName.split(".")[0] + "_PROCESSED.png"), helpImg);
+    fs.copyFileSync(
+        imgPath,
+        path.join(mismatchFolder, imgName)
+    );
+    fs.rmSync(imgPath);
+}
+
 async function splitImagesIntoChars(
     dataPath: string, 
     images: string[],
@@ -40,11 +52,14 @@ async function splitImagesIntoChars(
     const dataset: {[char: string]: ImageData[]} = {};
     for (const imageName of images) {
         const label = imageName.split(".")[0];
-        const processedImage = await processImage(path.join(dataPath, imageName));
+        const imgPath = path.join(dataPath, imageName);
+        const processedImage = await processImage(imgPath);
         if (label.length !== processedImage.detections.length) {
             console.log("warn: skipping " + imageName + " due to label detection length mismatch.");
+            moveImageMismatchLabel(dataPath, imageName, processedImage.helpImageBuff);
             continue;
         }
+        console.log("processed " + imageName);
         for (let i = 0; i < label.length; i++) {
             const char = label[i];
             const tensorData = processedImage.detections[i].tensorData;
@@ -89,10 +104,14 @@ export async function train(dataPath: string) {
     console.log("finished!");
 
     const testingDataset = await splitImagesIntoChars(dataPath, testingImages);
+
     let totalRecords = 0;
-    for(const x of Object.values(testingDataset).map(e => e.length)) totalRecords += x;
+    for(const arr of Object.values(testingDataset)){
+        totalRecords += arr.length;
+    }
+    
     let correct = 0;
-    for(const [char, tensorDataArray] of Object.entries(trainingDataset)) {
+    for(const [char, tensorDataArray] of Object.entries(testingDataset)) {
         for(const tensorData of tensorDataArray) {
             const result = await knn.predict(tensorData);
             if(result.label === char) {
