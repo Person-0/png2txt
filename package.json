@@ -1,6 +1,7 @@
 {
   "main": "src/main.ts",
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^24.10.1",
     "rimraf": "^6.0.1",
@@ -16,6 +17,7 @@
     "@tensorflow-models/knn-classifier": "^1.2.6",
     "@tensorflow/tfjs-node": "^4.22.0",
     "canvas": "^3.2.0",
+    "cors": "^2.8.5",
     "express": "^5.2.1"
   }
 }

@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import path from "path";
 import fs from "fs";
 import { processImage } from "./imageProcessing";
@@ -35,6 +36,7 @@ async function main() {
     const classifier = new KNNCharacterDetector();
     classifier.loadFromData(getLatestTrainedResult());
 
+    app.use(cors());
     app.use(express.static("public"));
     app.use(express.urlencoded({ extended: true }));
 
