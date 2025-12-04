@@ -101,10 +101,11 @@ export async function train(dataPath: string) {
     if(allChars.length) {
         console.log("warn: characters samples left!!: " + allChars);
     }
-    
+
+    console.log("finished!");
+    console.log("saving...")
     fs.writeFileSync(path.join(__dirname, "../train_results/", Date.now().toString()), knn.getSaveFile());
     console.log("saved classifier.")
-    console.log("finished!");
 
     const testingDataset = await splitImagesIntoChars(dataPath, testingImages);
 
@@ -114,16 +115,26 @@ export async function train(dataPath: string) {
     }
     
     let correct = 0;
+    let avgPredMS = 0;
+    let i = 0;
     for(const [char, tensorDataArray] of Object.entries(testingDataset)) {
         for(const tensorData of tensorDataArray) {
+            const start = Date.now();
             const result = await knn.predict(tensorData);
+            avgPredMS = ((avgPredMS * i) + Date.now() - start) / (i+1);
+            i += 1;
             if(result.label === char) {
                 correct += 1;
             }
         }
     }
 
+    console.log("\n===============\n    Results\n")
+    console.log("Total Records:", totalRecords);
+    console.log("Correct Responses:", correct);
     console.log("Accuracy: " + (correct * 100 / totalRecords).toString() + "%");
+    console.log("Average prediction time: " + avgPredMS.toString() + "ms");
+    console.log("===============\n")
 
     return knn;
 }
