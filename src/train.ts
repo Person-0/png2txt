@@ -64,7 +64,7 @@ async function splitImagesIntoChars(
             const char = label[i];
             const tensorData = processedImage.detections[i].tensorData;
             if(dataset[char]){
-                dataset[char].push(tensorData)
+                dataset[char].push(tensorData);
             } else {
                 dataset[char] = [tensorData];
             }
@@ -87,7 +87,7 @@ export async function train(dataPath: string) {
     console.log("images distributed randomly for training and testing.");
 
     const trainingDataset = await splitImagesIntoChars(dataPath, trainingImages);
-    console.log("training images split into characters according to labels.")
+    console.log("training images split into characters according to labels.");
 
     const knn = new KNNCharacterDetector();
     
@@ -128,12 +128,12 @@ export async function train(dataPath: string) {
         }
     }
 
-    console.log("\n===============\n    Results\n")
+    console.log("\n===============\n    Results\n");
     console.log("Total Chars:", totalRecords);
     console.log("Correct Guesses:", correct);
     console.log("Accuracy: " + (correct * 100 / totalRecords).toString() + "%");
     console.log("Average prediction time: " + avgPredMS.toString() + "ms");
-    console.log("===============\n")
+    console.log("===============\n");
 
     // add training data to classifier
     for(const [char, tensorDataArray] of Object.entries(testingDataset)) {
@@ -149,7 +149,7 @@ export async function train(dataPath: string) {
     console.log("Characters Sample Count: ", charCount);
 
     // finally, save
-    console.log("saving...")
+    console.log("saving...");
     fs.writeFileSync(path.join(__dirname, "../train_results/", Date.now().toString()), knn.getSaveFile());
-    console.log("saved classifier.")
+    console.log("saved classifier.");
 }
