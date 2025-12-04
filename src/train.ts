@@ -99,9 +99,12 @@ export async function train(dataPath: string) {
         }
     }
     if(allChars.length) {
-        console.log("warn: characters samples left!!: " + allChars);
+        console.log("warn: characters samples left: " + allChars);
     }
+
     console.log("finished!");
+    fs.writeFileSync(path.join(__dirname, "../train_results/", Date.now().toString()), knn.getSaveFile());
+    console.log("saved classifier.")
 
     const testingDataset = await splitImagesIntoChars(dataPath, testingImages);
 
@@ -121,8 +124,6 @@ export async function train(dataPath: string) {
     }
 
     console.log("Accuracy: " + (correct * 100 / totalRecords).toString() + "%");
-
-    fs.writeFileSync(path.join(__dirname, "../train_results/", Date.now().toString()), knn.getSaveFile());
 
     return knn;
 }
