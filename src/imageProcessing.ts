@@ -19,6 +19,13 @@ class charPosDataInfo {
     }
 }
 
+export function imageDataToBuffer(imgdta: ImageData) {
+    const canvas = createCanvas(imgdta.width, imgdta.height);
+    const ctx = canvas.getContext('2d');
+    ctx.putImageData(imgdta, 0, 0);
+    return canvas.toBuffer();
+}
+
 export async function processImage(imagePath: string) {
     const image = await loadImage(imagePath);
     const canvas = createCanvas(image.width, image.height);
