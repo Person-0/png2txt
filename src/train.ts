@@ -91,15 +91,17 @@ export async function train(dataPath: string) {
 
     const knn = new KNNCharacterDetector();
     
-    let allChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let charsLeft = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const charCount: Record<string, number> = {};
     for(const [char, tensorDataArray] of Object.entries(trainingDataset)) {
         for(const tensorData of tensorDataArray) {
-            allChars = allChars.replace(char, "");
+            charsLeft = charsLeft.replace(char, "");
+            charCount[char] = charCount[char] ? charCount[char] + 1 : 1;
             knn.addImage(char, tensorData);
         }
     }
-    if(allChars.length) {
-        console.log("warn: characters samples left!!: " + allChars);
+    if(charsLeft.length) {
+        console.log("warn: characters samples left!!: " + charsLeft);
     }
 
     console.log("finished!");
@@ -136,9 +138,15 @@ export async function train(dataPath: string) {
     // add training data to classifier
     for(const [char, tensorDataArray] of Object.entries(testingDataset)) {
         for(const tensorData of tensorDataArray) {
+            charsLeft = charsLeft.replace(char, "");
+            charCount[char] = charCount[char] ? charCount[char] + 1 : 1;
             knn.addImage(char, tensorData);
         }
     }
+    if(charsLeft.length) {
+        console.log("final warn: characters samples left!!: " + charsLeft);
+    }
+    console.log("Characters Sample Count: ", charCount);
 
     // finally, save
     console.log("saving...")
