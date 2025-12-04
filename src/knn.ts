@@ -1,23 +1,30 @@
-// knn sample
-
 import * as tf from '@tensorflow/tfjs-node';
 import * as knnClassifier from '@tensorflow-models/knn-classifier';
+import { ImageData } from 'canvas';
 
-const classifier = knnClassifier.create();
+export default class KNNCharacterDetector {
 
-function colorTensor(r: number, g: number, b: number) {
-  return tf.tensor2d([[r, g, b]]).div(255);
+  classifier: knnClassifier.KNNClassifier;
+  k = 3;
+
+  constructor() {
+    this.classifier = knnClassifier.create();
+  }
+
+  imgDataToTensor(tensorData: ImageData) {
+    const computed: number[] = [];
+    for(let i = 0; i < tensorData.data.length; i+=4){
+      computed.push(tensorData.data[i]);
+    }
+    return tf.tensor1d(computed);
+  }
+
+  addImage(label: string, tensorData: ImageData) {
+    this.classifier.addExample(this.imgDataToTensor(tensorData), label);
+  }
+
+  async predict(tensorData: ImageData) {
+    const pred = this.imgDataToTensor(tensorData);
+    return await this.classifier.predictClass(pred, this.k);
+  }
 }
-
-classifier.addExample(colorTensor(0, 0, 0), "black");
-classifier.addExample(colorTensor(10, 10, 10), "black");
-
-classifier.addExample(colorTensor(255, 255, 255), "white");
-classifier.addExample(colorTensor(250, 250, 250), "white");
-
-classifier.addExample(colorTensor(100, 100, 100), "gray");
-classifier.addExample(colorTensor(120, 120, 120), "gray");
-
-const pred = colorTensor(255, 255, 255);
-
-classifier.predictClass(pred, 3).then(console.log);

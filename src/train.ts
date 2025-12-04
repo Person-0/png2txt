@@ -1,8 +1,10 @@
 import fs from "fs";
 import path from "path";
-import { processImage, imageDataToBuffer } from "./imageProcessing";
+import { processImage } from "./imageProcessing";
+import { ImageData } from "canvas";
+import KNNCharacterDetector from "./knn";
 
-const TrainingSplitFactor = 0.7; // 70% of the data is used for training, rest for testing
+const TrainingSplitFactor = 0.9; // 90% of the data is used for training, rest for testing
 const supportedImageExtensions = [".png", ".jpg", ".jpeg", ".svg", ".webp"];
 
 const isImageFile = (imageName: string) => 
@@ -31,52 +33,29 @@ function randomSplitArray(array: any[], t: number) {
     return [array_1, array_2];
 }
 
-async function splitTrainingImagesIntoChars(
+async function splitImagesIntoChars(
     dataPath: string, 
-    images: string[], 
-    trainingImagesFolderName = 'training_images', 
-    startFresh = false
+    images: string[],
 ) {
-    const trainingImagesDir = path.join(dataPath, trainingImagesFolderName);
-
-    if (fs.existsSync(trainingImagesDir)) {
-        if (startFresh) {
-            fs.rmSync(trainingImagesDir, { recursive: true, force: true });
-            fs.mkdirSync(trainingImagesDir);
-            console.log("cleared directory /" + trainingImagesFolderName);
-        }
-    } else {
-        fs.mkdirSync(trainingImagesDir);
-        console.log("created directory /" + trainingImagesFolderName);
-    }
-
+    const dataset: {[char: string]: ImageData[]} = {};
     for (const imageName of images) {
         const label = imageName.split(".")[0];
-        const imagePath = path.join(dataPath, imageName);
-        const processedImage = await processImage(imagePath);
+        const processedImage = await processImage(path.join(dataPath, imageName));
         if (label.length !== processedImage.detections.length) {
             console.log("warn: skipping " + imageName + " due to label detection length mismatch.");
             continue;
         }
         for (let i = 0; i < label.length; i++) {
-            let charIndex = 0;
             const char = label[i];
-            const charFolder = path.join(trainingImagesDir, char);
-            if (fs.existsSync(charFolder)) {
-                charIndex = Math.max(
-                    ...readImageDirectory(charFolder)
-                        .map(e => parseInt(e.split(".")[0]))
-                ) + 1;
+            const tensorData = processedImage.detections[i].tensorData;
+            if(dataset[char]){
+                dataset[char].push(tensorData)
             } else {
-                fs.mkdirSync(charFolder);
+                dataset[char] = [tensorData];
             }
-            const finalImagePath = path.join(charFolder, charIndex.toString() + ".png");
-            fs.writeFileSync(finalImagePath, imageDataToBuffer(processedImage.detections[i].data));
-            console.log("wrote " + char + "/" + charIndex.toString() + ".png");
         }
     }
-
-    return trainingImagesDir;
+    return dataset;
 }
 
 export async function train(dataPath: string) {
@@ -92,10 +71,37 @@ export async function train(dataPath: string) {
     const [trainingImages, testingImages] = randomSplitArray(images, TrainingSplitFactor);
     console.log("images distributed randomly for training and testing.");
 
-    const trainingImagesDir = await splitTrainingImagesIntoChars(dataPath, trainingImages);
+    const trainingDataset = await splitImagesIntoChars(dataPath, trainingImages);
     console.log("training images split into characters according to labels.")
 
-    // continue here
+    const knn = new KNNCharacterDetector();
+    
+    let allChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    for(const [char, tensorDataArray] of Object.entries(trainingDataset)) {
+        for(const tensorData of tensorDataArray) {
+            allChars = allChars.replace(char, "");
+            knn.addImage(char, tensorData);
+        }
+    }
+    if(allChars.length) {
+        console.log("warn: characters samples left!!: " + allChars);
+    }
+    console.log("finished!");
 
-    console.log("finished");
+    const testingDataset = await splitImagesIntoChars(dataPath, testingImages);
+    let totalRecords = 0;
+    for(const x of Object.values(testingDataset).map(e => e.length)) totalRecords += x;
+    let correct = 0;
+    for(const [char, tensorDataArray] of Object.entries(trainingDataset)) {
+        for(const tensorData of tensorDataArray) {
+            const result = await knn.predict(tensorData);
+            if(result.label === char) {
+                correct += 1;
+            }
+        }
+    }
+
+    console.log("Accuracy: " + (correct * 100 / totalRecords).toString() + "%");
+
+    return knn;
 }
