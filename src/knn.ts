@@ -6,22 +6,24 @@ export default class KNNCharacterDetector {
 
   classifier: knnClassifier.KNNClassifier;
   k = 3;
+  tensorSize = -1;
 
   constructor() {
     this.classifier = knnClassifier.create();
   }
 
   getSaveFile() {
-    const data: { [label: string]: tf.Tensor2D | string } = this.classifier.getClassifierDataset();
-    for (const label of Object.keys(data)) {
-      const t = data[label] as tf.Tensor2D;
-      data[label] = JSON.stringify({
+    const internal = this.classifier.getClassifierDataset();
+    const copy: any = {};
+    for (const label of Object.keys(internal)) {
+      const t = internal[label];
+      copy[label] = {
         shape: t.shape,
         dtype: t.dtype,
         data: Array.from(t.dataSync())
-      });
+      };
     }
-    return JSON.stringify(data);
+    return JSON.stringify(copy);
   }
 
   loadFromData(data: string) {
@@ -42,7 +44,13 @@ export default class KNNCharacterDetector {
   }
 
   addImage(label: string, tensorData: ImageData) {
-    this.classifier.addExample(this.imgDataToTensor(tensorData), label);
+    const tensor = this.imgDataToTensor(tensorData);
+    if (this.tensorSize != -1 && tensor.size != this.tensorSize) {
+      throw "INVALID TENSOR SIZE: " + tensor.size;
+    } else {
+      this.tensorSize = tensor.size;
+    }
+    this.classifier.addExample(tensor, label);
   }
 
   async predict(tensorData: ImageData) {
