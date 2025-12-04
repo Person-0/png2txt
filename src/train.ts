@@ -2,10 +2,9 @@ import fs from "fs";
 import path from "path";
 import { processImage, imageDataToBuffer } from "./imageProcessing";
 
-function readCharacterDirectory(charFolder: string) {
+function readImageDirectory(charFolder: string) {
     return fs.readdirSync(charFolder)
-        .filter(e => isImage(e))
-        .map(e => parseInt(e.split(".")[0]));
+        .filter(e => isImage(e));
 }
 
 function randomSplitArray(array: any[], t: number) {
@@ -61,7 +60,10 @@ async function splitTrainingImagesIntoChars(dataPath: string, images: string[], 
             const char = label[i];
             const charFolder = path.join(trainingImagesDir, char);
             if (fs.existsSync(charFolder)) {
-                charIndex = Math.max(...readCharacterDirectory(charFolder)) + 1;
+                charIndex = Math.max(
+                    ...readImageDirectory(charFolder)
+                        .map(e => parseInt(e.split(".")[0]))
+                ) + 1;
             } else {
                 fs.mkdirSync(charFolder);
             }
@@ -79,7 +81,7 @@ export async function train(dataPath: string) {
         throw "error: training data path does not exist / is not a directory";
     }
 
-    const images = fs.readdirSync(dataPath).filter(e => isImage(e));
+    const images = readImageDirectory(dataPath);
     if (!images.length) {
         throw "error: training data directory has no images";
     }
