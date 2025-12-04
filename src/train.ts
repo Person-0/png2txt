@@ -103,9 +103,6 @@ export async function train(dataPath: string) {
     }
 
     console.log("finished!");
-    console.log("saving...")
-    fs.writeFileSync(path.join(__dirname, "../train_results/", Date.now().toString()), knn.getSaveFile());
-    console.log("saved classifier.")
 
     const testingDataset = await splitImagesIntoChars(dataPath, testingImages);
 
@@ -136,5 +133,15 @@ export async function train(dataPath: string) {
     console.log("Average prediction time: " + avgPredMS.toString() + "ms");
     console.log("===============\n")
 
-    return knn;
+    // add training data to classifier
+    for(const [char, tensorDataArray] of Object.entries(testingDataset)) {
+        for(const tensorData of tensorDataArray) {
+            knn.addImage(char, tensorData);
+        }
+    }
+
+    // finally, save
+    console.log("saving...")
+    fs.writeFileSync(path.join(__dirname, "../train_results/", Date.now().toString()), knn.getSaveFile());
+    console.log("saved classifier.")
 }
