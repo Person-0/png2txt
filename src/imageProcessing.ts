@@ -1,21 +1,33 @@
-import { createCanvas, ImageData, loadImage, CanvasRenderingContext2D } from 'canvas';
+import { createCanvas, ImageData, loadImage, CanvasRenderingContext2D, Image } from 'canvas';
 
 const PIX_THRESH = 100;
 const X_THRESH = 3;
+const imgTensorDim = 64;
 
 class charPosDataInfo {
     x: number;
     y: number;
     width: number;
     height: number;
-    data: ImageData;
+    tensorData: ImageData;
+    imgdata: ImageData;
 
     constructor(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
-        this.data = ctx.getImageData(x, y, width, height);
+
+        const data = ctx.getImageData(x, y, width, height);
+        const temp = createCanvas(width, height);
+        const tctx = temp.getContext("2d");
+        tctx.putImageData(data, 0, 0);
+        const resized = createCanvas(imgTensorDim, imgTensorDim);
+        const rctx = resized.getContext("2d");
+        rctx.drawImage(temp, 0, 0, width, height, 0, 0, imgTensorDim, imgTensorDim);
+
+        this.tensorData = rctx.getImageData(0, 0, imgTensorDim, imgTensorDim);
+        this.imgdata = data;
     }
 }
 
@@ -132,7 +144,7 @@ export async function processImage(imagePath: string) {
 
             detectedCharacters.push(
                 new charPosDataInfo(
-                    ctx, 
+                    ctx,
                     start, ymin, end - start, ymax - ymin
                 )
             );

@@ -3,6 +3,7 @@ import path from "path";
 import { processImage } from "./imageProcessing";
 import { train } from "./train";
 
+console.log("\n== IMG2TEXT ==\n");
 if(process.argv[2] && process.argv[2] === "--prod") {
     console.log("Prod env detected, running main()");
     main();
@@ -14,7 +15,7 @@ if(process.argv[2] && process.argv[2] === "--prod") {
 async function main() {
     const app = express();
 
-    const processed = await processImage(path.join(__dirname, 'samples/7GZ58H.jpg'));
+    const processed = await processImage(path.join(__dirname, '../samples/PNYWR9.jpg'));
 
     app.get("/img", (req, res) => {
         res.type("png");
