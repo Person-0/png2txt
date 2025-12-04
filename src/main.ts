@@ -45,7 +45,7 @@ async function main() {
     app.get("/api/", (req, res) => {
         send(res, {
             error: false
-        })
+        });
     });
 
     // Content-Type: application/x-www-form-urlencoded
@@ -72,14 +72,14 @@ async function main() {
                 error,
                 prediction,
                 helpImage
-            })
+            });
             return;
         }
 
         send(res, {
             error: true,
             message: "invalid post body"
-        })
+        });
     });
 
     const PORT = process.env.PORT || 8080;
