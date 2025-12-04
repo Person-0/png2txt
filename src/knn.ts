@@ -17,11 +17,11 @@ export default class KNNCharacterDetector {
     const copy: any = {};
     for (const label of Object.keys(internal)) {
       const t = internal[label];
-      copy[label] = {
+      copy[label] = JSON.stringify({
         shape: t.shape,
         dtype: t.dtype,
         data: Array.from(t.dataSync())
-      };
+      });
     }
     return JSON.stringify(copy);
   }
