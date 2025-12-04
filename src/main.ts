@@ -1,21 +1,23 @@
-import * as tf from '@tensorflow/tfjs-node';
-import * as knnClassifier from '@tensorflow-models/knn-classifier';
+import express from "express";
+import { processImage } from "./imageProcessing";
 
-const classifier = knnClassifier.create();
+async function main() {
+    const app = express();
 
-function colorTensor(r: number, g: number, b: number) {
-  return tf.tensor2d([[r, g, b]]).div(255);
+    const processed = await processImage('samples/7GZ58H.jpg');
+
+    app.get("/img", (req, res) => {
+        res.type("png");
+        res.send(processed);
+    })
+
+    app.get("/", (req, res) => {
+        res.send(`<img src="/img" style="position: absolute; width: 80vw; margin: auto; left: 0; top: 0; bottom: 0; right: 0;">`);
+    })
+    
+    app.listen(8080, () => {
+        console.log("app listenting on port 8080");
+    })
 }
 
-classifier.addExample(colorTensor(0, 0, 0), "black");
-classifier.addExample(colorTensor(10, 10, 10), "black");
-
-classifier.addExample(colorTensor(255, 255, 255), "white");
-classifier.addExample(colorTensor(250, 250, 250), "white");
-
-classifier.addExample(colorTensor(100, 100, 100), "gray");
-classifier.addExample(colorTensor(120, 120, 120), "gray");
-
-const pred = colorTensor(255, 255, 255);
-
-classifier.predictClass(pred, 3).then(console.log);
+main();
