@@ -2,13 +2,51 @@ import fs from "fs";
 import path from "path";
 import { processImage, imageDataToBuffer } from "./imageProcessing";
 
-async function splitTrainingImagesIntoChars(dataPath: string, images: string[]) {
-    const trainingImagesDir = path.join(dataPath, 'training_images');
-    if (fs.existsSync(trainingImagesDir)) {
-        fs.rmSync(trainingImagesDir, { recursive: true, force: true });
+function readCharacterDirectory(charFolder: string) {
+    return fs.readdirSync(charFolder)
+        .filter(e => isImage(e))
+        .map(e => parseInt(e.split(".")[0]));
+}
+
+function randomSplitArray(array: any[], t: number) {
+    if(t > 1) {
+        throw "t cannnot be greater than 1";
     }
-    fs.mkdirSync(trainingImagesDir);
-    console.log("created training characters directory.");
+    const n = Math.floor(array.length * t);
+    let array_1 = [];
+    let array_2 = [...array];
+    for(let _ = 0; _ < n; _++) {
+        const a2l = array_2.length;
+        const sel = Math.floor(Math.random() * a2l);
+        array_1.push(array_2[sel]);
+        array_2 = array_2.slice(0, sel).concat(array_2.slice(sel + 1, a2l));
+    }
+    return [array_1, array_2];
+}
+
+function isImage(imageName: string) {
+    return (
+        imageName.endsWith(".png") ||
+        imageName.endsWith(".jpg") ||
+        imageName.endsWith(".jpeg") ||
+        imageName.endsWith(".svg") ||
+        imageName.endsWith(".webp")
+    )
+}
+
+async function splitTrainingImagesIntoChars(dataPath: string, images: string[], trainingImagesFolderName = 'training_images', startFresh = false) {
+    const trainingImagesDir = path.join(dataPath, trainingImagesFolderName);
+
+    if (fs.existsSync(trainingImagesDir)) {
+        if (startFresh) {
+            fs.rmSync(trainingImagesDir, { recursive: true, force: true });
+            fs.mkdirSync(trainingImagesDir);
+            console.log("cleared directory /" + trainingImagesFolderName);
+        }
+    } else {
+        fs.mkdirSync(trainingImagesDir);
+        console.log("created directory /" + trainingImagesFolderName);
+    }
 
     for (const imageName of images) {
         const label = imageName.split(".")[0];
@@ -23,14 +61,7 @@ async function splitTrainingImagesIntoChars(dataPath: string, images: string[]) 
             const char = label[i];
             const charFolder = path.join(trainingImagesDir, char);
             if (fs.existsSync(charFolder)) {
-                let maxIndex = 0;
-                for (const filename of fs.readdirSync(charFolder)) {
-                    const index = parseInt(filename.split(".")[0]);
-                    if (index > maxIndex) {
-                        maxIndex = index;
-                    }
-                }
-                charIndex = maxIndex + 1;
+                charIndex = Math.max(...readCharacterDirectory(charFolder)) + 1;
             } else {
                 fs.mkdirSync(charFolder);
             }
@@ -39,6 +70,8 @@ async function splitTrainingImagesIntoChars(dataPath: string, images: string[]) 
             console.log("wrote " + char + "/" + charIndex.toString() + ".png");
         }
     }
+
+    return trainingImagesDir;
 }
 
 export async function train(dataPath: string) {
@@ -51,18 +84,13 @@ export async function train(dataPath: string) {
         throw "error: training data directory has no images";
     }
 
-    console.log("splitting training images into characters according to labels...");
-    await splitTrainingImagesIntoChars(dataPath, images);
+    const [trainingImages, testingImages] = randomSplitArray(images, 0.7);
+    console.log("images distributed randomly for training and testing.");
+
+    const trainingImagesDir = await splitTrainingImagesIntoChars(dataPath, trainingImages);
+    console.log("training images split into characters according to labels.")
+
+    // continue here
 
     console.log("finished");
-}
-
-function isImage(imageName: string) {
-    return (
-        imageName.endsWith(".png") ||
-        imageName.endsWith(".jpg") ||
-        imageName.endsWith(".jpeg") ||
-        imageName.endsWith(".svg") ||
-        imageName.endsWith(".webp")
-    )
 }
