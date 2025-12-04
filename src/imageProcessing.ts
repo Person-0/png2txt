@@ -38,8 +38,14 @@ export function imageDataToBuffer(imgdta: ImageData) {
     return canvas.toBuffer();
 }
 
-export async function processImage(imagePath: string) {
-    const image = await loadImage(imagePath);
+export async function processImage(img: Buffer | string) {
+    let image: Image;
+    if(typeof img === "string") {
+        image = await loadImage(img);
+    } else {
+        image = new Image();
+        image.src = img;
+    }
     const canvas = createCanvas(image.width, image.height);
     const ctx = canvas.getContext('2d');
 
