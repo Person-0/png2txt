@@ -1,4 +1,4 @@
-import * as tf from '@tensorflow/tfjs-node';
+import * as tf from '@tensorflow/tfjs'; // not using tfjs-node as i plan on running this on cloudflare workers
 import * as knnClassifier from '@tensorflow-models/knn-classifier';
 import { ImageData } from 'canvas';
 
