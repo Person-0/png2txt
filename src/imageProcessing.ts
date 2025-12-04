@@ -144,7 +144,16 @@ export async function processImage(imagePath: string) {
     }
 
     return {
+        /**
+         * A help image to validate detections.
+         * Contains two images of same dimensions with one on top of other.
+         * Top part is original image that was processed.
+         * Bottom part is processed image with detection markers.
+         */
         helpImageBuff: helper_canvas.toBuffer(),
+        /**
+         * Stores characters detected in order as instances of charPosDataInfo
+         */
         detections: detectedCharacters
     };
 }
