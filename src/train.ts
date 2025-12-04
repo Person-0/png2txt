@@ -3,10 +3,16 @@ import path from "path";
 import { processImage, imageDataToBuffer } from "./imageProcessing";
 
 const TrainingSplitFactor = 0.7; // 70% of the data is used for training, rest for testing
+const supportedImageExtensions = [".png", ".jpg", ".jpeg", ".svg", ".webp"];
+
+const isImageFile = (imageName: string) => 
+    supportedImageExtensions.some(extn => 
+        imageName.toLowerCase().endsWith(extn)
+    );
 
 function readImageDirectory(charFolder: string) {
     return fs.readdirSync(charFolder)
-        .filter(e => isImage(e));
+        .filter(e => isImageFile(e));
 }
 
 function randomSplitArray(array: any[], t: number) {
@@ -18,24 +24,19 @@ function randomSplitArray(array: any[], t: number) {
     let array_2 = [...array];
     for(let _ = 0; _ < n; _++) {
         const a2l = array_2.length;
-        const sel = Math.floor(Math.random() * (a2l-1));
+        const sel = Math.floor(Math.random() * a2l);
         array_1.push(array_2[sel]);
-        array_2 = array_2.slice(0, sel).concat(array_2.slice(sel + 1, a2l));
+        array_2.splice(sel, 1);
     }
     return [array_1, array_2];
 }
 
-function isImage(imageName: string) {
-    return (
-        imageName.endsWith(".png") ||
-        imageName.endsWith(".jpg") ||
-        imageName.endsWith(".jpeg") ||
-        imageName.endsWith(".svg") ||
-        imageName.endsWith(".webp")
-    )
-}
-
-async function splitTrainingImagesIntoChars(dataPath: string, images: string[], trainingImagesFolderName = 'training_images', startFresh = false) {
+async function splitTrainingImagesIntoChars(
+    dataPath: string, 
+    images: string[], 
+    trainingImagesFolderName = 'training_images', 
+    startFresh = false
+) {
     const trainingImagesDir = path.join(dataPath, trainingImagesFolderName);
 
     if (fs.existsSync(trainingImagesDir)) {
