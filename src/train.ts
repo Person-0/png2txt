@@ -2,6 +2,8 @@ import fs from "fs";
 import path from "path";
 import { processImage, imageDataToBuffer } from "./imageProcessing";
 
+const TrainingSplitFactor = 0.7; // 70% of the data is used for training, rest for testing
+
 function readImageDirectory(charFolder: string) {
     return fs.readdirSync(charFolder)
         .filter(e => isImage(e));
@@ -16,7 +18,7 @@ function randomSplitArray(array: any[], t: number) {
     let array_2 = [...array];
     for(let _ = 0; _ < n; _++) {
         const a2l = array_2.length;
-        const sel = Math.floor(Math.random() * a2l);
+        const sel = Math.floor(Math.random() * (a2l-1));
         array_1.push(array_2[sel]);
         array_2 = array_2.slice(0, sel).concat(array_2.slice(sel + 1, a2l));
     }
@@ -86,7 +88,7 @@ export async function train(dataPath: string) {
         throw "error: training data directory has no images";
     }
 
-    const [trainingImages, testingImages] = randomSplitArray(images, 0.7);
+    const [trainingImages, testingImages] = randomSplitArray(images, TrainingSplitFactor);
     console.log("images distributed randomly for training and testing.");
 
     const trainingImagesDir = await splitTrainingImagesIntoChars(dataPath, trainingImages);
