@@ -127,8 +127,8 @@ export async function train(dataPath: string) {
     }
 
     console.log("\n===============\n    Results\n")
-    console.log("Total Records:", totalRecords);
-    console.log("Correct Responses:", correct);
+    console.log("Total Chars:", totalRecords);
+    console.log("Correct Guesses:", correct);
     console.log("Accuracy: " + (correct * 100 / totalRecords).toString() + "%");
     console.log("Average prediction time: " + avgPredMS.toString() + "ms");
     console.log("===============\n")
