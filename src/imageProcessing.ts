@@ -30,8 +30,8 @@ export async function processImage(imagePath: string) {
     const processedImageData = new Uint8ClampedArray(imageData.data.length);
     processedImageData.fill(0, 0, imageData.data.length);
 
-    // highlights only pixels that belong to characters, also sets the x coordinate of every pixel that 
-    // belongs to characters as 1 in hScanUVstrip
+    // highlights only pixels that belong to characters, also sets the x coordinate index of 
+    // every pixel that belongs to characters as 1 in hScanUVstrip
     const hScanUVstrip = new Uint8ClampedArray(image.width);
     for (let i = 0; i < imageData.data.length; i += 4) {
         let pix = imageData.data[i + 2];
