@@ -1,10 +1,20 @@
 import express from "express";
+import path from "path";
 import { processImage } from "./imageProcessing";
+import { train } from "./train";
+
+if(process.argv[2] && process.argv[2] === "--prod") {
+    console.log("Prod env detected, running main()");
+    main();
+} else {
+    console.log("Test env detected, running train()");
+    train(path.join(__dirname, '../samples')).catch(err => console.log(err));
+}
 
 async function main() {
     const app = express();
 
-    const processed = await processImage('samples/7GZ58H.jpg');
+    const processed = await processImage(path.join(__dirname, 'samples/7GZ58H.jpg'));
 
     app.get("/img", (req, res) => {
         res.type("png");
@@ -19,5 +29,3 @@ async function main() {
         console.log("app listenting on port 8080");
     })
 }
-
-main();
