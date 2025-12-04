@@ -1,4 +1,5 @@
 samples/*
+train_results
 node_modules
 package-lock.json
 dist
