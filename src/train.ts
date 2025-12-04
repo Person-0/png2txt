@@ -122,5 +122,7 @@ export async function train(dataPath: string) {
 
     console.log("Accuracy: " + (correct * 100 / totalRecords).toString() + "%");
 
+    fs.writeFileSync(path.join(__dirname, "../train_results/", Date.now().toString()), knn.getSaveFile());
+
     return knn;
 }
