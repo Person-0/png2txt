@@ -96,9 +96,14 @@ input[type="file"]:hover {
     color: var(--website-accent3);
 }
 
+.btns-group {
+    display: grid;
+    grid-template-columns: 50% 50%;
+}
+
 button {
     display: block;
-    width: 100%;
+    width: 95%;
     padding: 15px;
     background-color: var(--website-accent);
     color: var(--text-color);
@@ -107,6 +112,7 @@ button {
     font-size: 18px;
     cursor: pointer;
     transition: all 0.3s;
+    margin: auto;
 }
 
 button:hover {
@@ -135,6 +141,10 @@ button:hover {
     color: var(--website-accent);
     letter-spacing: 2px;
     font-family: 'Courier New', Courier, monospace;
+}
+
+.text-result {
+    display: none;
 }
 
 #result-text {

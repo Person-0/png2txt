@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>png2txt</title>
     <link rel="stylesheet" href="./index.css">
 </head>
+
 <body>
 
     <header>
@@ -13,10 +15,10 @@
     </header>
 
     <div class="container">
-        
+
         <section>
             <h2>Upload Image</h2>
-            
+
             <div class="input-group">
                 <label>Option 1: Upload File</label>
                 <input type="file" id="fileInput" accept="image/*">
@@ -29,19 +31,23 @@
                 <textarea id="base64Input" placeholder="data:image/png;base64,..."></textarea>
             </div>
 
-            <button onclick="processImage()">Recognize</button>
+            <div class="btns-group">
+                <button onclick="processImage('image')">Process Image</button>
+                <button onclick="processImage('text')">Recognize Text</button>
+            </div>
         </section>
 
         <section id="result-section">
             <h2>Result</h2>
             <img id="result-image" src="" alt="Processed Image">
-            <p>Detected Text:</p>
-            <div class="result-box" id="result-text">Loading...</div>
+            <p class="text-result">Detected Text:</p>
+            <div class="result-box text-result" id="result-text">Loading...</div>
         </section>
 
     </div>
 
     <script src="./index.js"></script>
-    
+
 </body>
+
 </html>

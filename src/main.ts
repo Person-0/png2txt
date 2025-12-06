@@ -17,7 +17,7 @@ if (process.argv[2] && process.argv[2] === "--prod") {
 
 function getLatestTrainedResult() {
     const trainResultsDir = path.join(__dirname, "../train_results");
-    if(!(fs.existsSync(trainResultsDir))){
+    if (!(fs.existsSync(trainResultsDir))) {
         throw "error: training results directory does not exist";
     }
     const files = fs.readdirSync(trainResultsDir).map(e => parseInt(e));
@@ -58,8 +58,10 @@ async function main() {
             try {
                 const processed = await processImage(req.body.b64data);
 
-                for (const char of processed.detections) {
-                    prediction += (await classifier.predict(char.tensorData)).label;
+                if (!(req.body.image === "true")) {
+                    for (const char of processed.detections) {
+                        prediction += (await classifier.predict(char.tensorData)).label;
+                    }
                 }
 
                 helpImage = "data:image/png;base64," + processed.helpImageBuff.toString("base64");
