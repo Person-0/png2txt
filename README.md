@@ -49,15 +49,15 @@ The result is then passed on to the classifier that predicts the characters one 
             ```json
             {
                 "error": false, 
-                "helpImage": <Base64-encoded image data of pre-processing result>,
-                "prediction": <Prediction result>
+                "helpImage": "<Base64-encoded image data of pre-processing result>",
+                "prediction": "<Prediction result>"
             }
             ```
         - In the event of an error, the API returns the following response:
             ```json
             {
                 "error": true,
-                "message": <error description> 
+                "message": "<error description>"
             }
             ```
 
