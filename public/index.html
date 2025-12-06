@@ -1,18 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>png2txt</title>
+    <link rel="stylesheet" href="./index.css">
 </head>
-
 <body>
-    <form action="/api/predict" method="post">
-        <label for="b64data">Image Data (in base64): </label><br>
-        <input type="text" id="b64data" name="b64data"><br>
-        <input type="submit" value="Submit">
-    </form>
-</body>
 
+    <header>
+        <h1>png2txt</h1>
+    </header>
+
+    <div class="container">
+        
+        <section>
+            <h2>Upload Image</h2>
+            
+            <div class="input-group">
+                <label>Option 1: Upload File</label>
+                <input type="file" id="fileInput" accept="image/*">
+            </div>
+
+            <div class="or-divider">- OR -</div>
+
+            <div class="input-group">
+                <label>Option 2: Paste Base64 Data</label>
+                <textarea id="base64Input" placeholder="data:image/png;base64,..."></textarea>
+            </div>
+
+            <button onclick="processImage()">Recognize</button>
+        </section>
+
+        <section id="result-section">
+            <h2>Result</h2>
+            <img id="result-image" src="" alt="Processed Image">
+            <p>Detected Text:</p>
+            <div class="result-box" id="result-text">Loading...</div>
+        </section>
+
+    </div>
+
+    <script src="./index.js"></script>
+    
+</body>
 </html>
