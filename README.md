@@ -1,24 +1,12 @@
 # **png2txt**
 
-<div class="rowholder">
-    <style>
-        .rowholder {
-            display: flex;
-            flex-direction: row;
-            margin-bottom: 2vh;
-            margin-top: 2vh;
-        }
-        .rowimg {
-            height: 50px;
-            margin-left: 10px;
-        }
-    </style>
-    <img class="rowimg" src="https://avatars.githubusercontent.com/u/15658638?s=48&v=4">
-    <img class="rowimg" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Typescript_logo_2020.svg/2048px-Typescript_logo_2020.svg.png">
-    <img class="rowimg" src="https://avatars.githubusercontent.com/u/9950313?s=48&v=4">
-    <img class="rowimg" src="https://avatars.githubusercontent.com/u/5658226?s=200&v=4">
-    <img class="rowimg" src="https://www.w3.org/html/logo/downloads/HTML5_Logo_512.png">
-    <img class="rowimg" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/CSS3_logo_and_wordmark.svg/1452px-CSS3_logo_and_wordmark.svg.png">
+<div>
+    <img style="height: 50px; margin-bottom: 1vh" src="https://avatars.githubusercontent.com/u/15658638?s=48&v=4">
+    <img style="height: 50px; margin-bottom: 1vh" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Typescript_logo_2020.svg/2048px-Typescript_logo_2020.svg.png">
+    <img style="height: 50px; margin-bottom: 1vh" src="https://avatars.githubusercontent.com/u/9950313?s=48&v=4">
+    <img style="height: 50px; margin-bottom: 1vh" src="https://avatars.githubusercontent.com/u/5658226?s=200&v=4">
+    <img style="height: 50px; margin-bottom: 1vh" src="https://www.w3.org/html/logo/downloads/HTML5_Logo_512.png">
+    <img style="height: 50px; margin-bottom: 1vh" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/CSS3_logo_and_wordmark.svg/1452px-CSS3_logo_and_wordmark.svg.png">
 </div>
 
 This is a simple project I made to solve very basic text-based captchas on a particular website that I frequent.
