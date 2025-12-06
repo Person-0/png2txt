@@ -1,4 +1,13 @@
 {
+  "name": "png2txt",
+  "author": "Person-0",
+  "version": "1.0.0",
+  "homepage": "https://github.com/Person-0/png2txt/",
+  "license": "GPL-3.0-only",
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/Person-0/png2txt/"
+  },
   "main": "src/main.ts",
   "devDependencies": {
     "@types/cors": "^2.8.19",
