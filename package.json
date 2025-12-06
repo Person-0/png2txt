@@ -8,10 +8,11 @@
     "typescript": "^5.9.2"
   },
   "scripts": {
-    "build": "npm run clean && npx tsc",
+    "build": "npm run clean && npx tsc && npm run train",
     "clean": "rimraf dist",
+    "train": "node --no-deprecation dist/main.js --trainonly",
     "prod": "node --no-deprecation dist/main.js --prod",
-    "start": "npm run build && node --no-deprecation dist/main.js"
+    "start": "npm run clean && npx tsc && node --no-deprecation dist/main.js"
   },
   "dependencies": {
     "@tensorflow-models/knn-classifier": "^1.2.6",

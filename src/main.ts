@@ -7,11 +7,16 @@ import { train } from "./train";
 import KNNCharacterDetector from "./knn";
 
 console.log("\n== IMG2TEXT ==\n");
-if (process.argv[2] && process.argv[2] === "--prod") {
-    console.log("Prod env detected, running main()");
-    main();
+if (process.argv[2]) {
+    if(process.argv[2] === "--prod") {
+        console.log("Prod env detected, running main()");
+        main();
+    } else if(process.argv[2] === "--trainonly") {
+        console.log("Train env detected, running train()");
+        train(path.join(__dirname, '../samples')).catch(err => console.log(err));
+    }
 } else {
-    console.log("Test env detected, running train()");
+    console.log("Test env detected, running train() and then main().");
     train(path.join(__dirname, '../samples')).then(main).catch(err => console.log(err));
 }
 
