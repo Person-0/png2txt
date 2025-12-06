@@ -1,4 +1,6 @@
-samples/*
+samples/*.jpg
+samples/*.png
+samples/*.jpeg
 train_results
 node_modules
 package-lock.json
