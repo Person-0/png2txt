@@ -20,6 +20,7 @@ It uses tensorflow's KNN classification model to train and detect a character fr
 The image input is first pre-processed, which includes
 - Identifying pixel values of the blue channel (out of rgba) that are below a set threshold, setting all the channels of that pixel to 255 and otherwise setting all channels of that pixel to 0
 - Identifying positions of characters in the image and returning the bounds and imageData of those specific parts of the image, in order.
+- Resizing those character's imageData to 64x64 resolution to ensure consistent results.
 
 > *Sample result of the pre-processing.<br> The top image is the input image and the botom image is the processed image.*<br>
 > ![processedimg](./demos/imgprocessed_071225.png)
