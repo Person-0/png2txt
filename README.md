@@ -53,6 +53,13 @@ The result is then passed on to the classifier that predicts the characters one 
                 "prediction": <Prediction result>
             }
             ```
+        - In the event of an error, the API returns the following response:
+            ```json
+            {
+                "error": true,
+                "message": <error description> 
+            }
+            ```
 
 ## **Frontend**
 - Vanilla HTML/CSS, JS
