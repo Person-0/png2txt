@@ -10,7 +10,7 @@ console.log("\n== IMG2TEXT ==\n");
 if (process.argv[2]) {
     if(process.argv[2] === "--prod") {
         console.log("Prod env detected, running main()");
-        main();
+        main(true);
     } else if(process.argv[2] === "--trainonly") {
         console.log("Train env detected, running train()");
         train(path.join(__dirname, '../samples')).catch(err => console.log(err));
@@ -20,8 +20,8 @@ if (process.argv[2]) {
     train(path.join(__dirname, '../samples')).then(main).catch(err => console.log(err));
 }
 
-function getLatestTrainedResult() {
-    const trainResultsDir = path.join(__dirname, "../train_results");
+function getLatestTrainedResult(isProd: boolean | void = false) {
+    const trainResultsDir = path.join(__dirname, "../", isProd ? "models" : "train_results");
     if (!(fs.existsSync(trainResultsDir))) {
         throw "error: training results directory does not exist";
     }
@@ -35,11 +35,11 @@ function getLatestTrainedResult() {
     }
 }
 
-async function main() {
+async function main(isProd: boolean | void = false) {
     const app = express();
 
     const classifier = new KNNCharacterDetector();
-    classifier.loadFromData(getLatestTrainedResult());
+    classifier.loadFromData(getLatestTrainedResult(isProd));
 
     app.use(cors());
     app.use(express.static("public"));
