@@ -83,7 +83,7 @@ npm start
            > **Important**: This command REQUIRES labelled images to be present inside the **samples** folder in the project's root directory as instructed by Step 4.
     - `npm run prod`
         - This does not train the classifier and instead only runs the express server (API, website). The latest model available inside the folder **models** in the project's root directory is loaded.
-            > **Important**: This command REQUIRES a model to be manually copied from the **train_results** folder to the **models** folder in the project's root directory incase the **models** folder has no models present, unless the command will fail to execute.
+            > **Important**: This command REQUIRES a model to be manually copied from the **train_results** folder to the **models** folder in the project's root directory. Incase the **models** folder has no models present, the command will fail to execute.
 
 # Project structure
 ```md
