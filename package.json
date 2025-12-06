@@ -8,7 +8,7 @@
     "typescript": "^5.9.2"
   },
   "scripts": {
-    "build": "npm run clean && npx tsc && npm run train",
+    "build": "npm run clean && npx tsc",
     "clean": "rimraf dist",
     "train": "node --no-deprecation dist/main.js --trainonly",
     "prod": "node --no-deprecation dist/main.js --prod",
