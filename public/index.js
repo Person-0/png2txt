@@ -4,7 +4,7 @@ async function processResult(b64ImageData, resultType) {
     if (resultType === "image") {
         params.append("image", "true");
     }
-    const res = await fetch("/api/predict", {
+    const res = await fetch("./api/predict", {
         method: "POST",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded"
